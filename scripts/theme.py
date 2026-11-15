@@ -109,6 +109,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("build", "check"))
     action = parser.parse_args().action
+    release = (ROOT / "VERSION").read_text().strip()
+    if not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", release):
+        raise ValueError("VERSION must contain a major.minor.patch version, such as 0.1.0.")
     theme = read_theme()
     outputs = artifacts(theme)
     check_contrast(theme["colors"])
@@ -125,6 +128,7 @@ def main():
             raise ValueError("Generated files are stale: " + ", ".join(stale) + ". Run the build.")
         print("Generated files match the sources.")
     print(f"Custom CSS: {len(theme['css'].encode('utf-16-le')) // 2}/{CSS_LIMIT} characters.")
+    print(f"Release: v{release}.")
 
 
 if __name__ == "__main__":

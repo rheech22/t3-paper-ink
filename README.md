@@ -7,7 +7,7 @@ Fine borders, square controls, and a folded white composer give the interface a 
 
 ## Install
 
-1. Download [paper-ink.json](paper-ink.json) from this repository.
+1. Download `paper-ink.json` from the [latest release](https://github.com/rheech22/t3-paper-ink/releases/latest).
 2. In T3 Code, open **Settings → Appearance**, then **Add a theme** or the theme import dialog.
 3. Drop in the JSON file or paste its contents, then select **Paper / Ink**.
 4. Use **Light** appearance.
@@ -71,7 +71,27 @@ The serif font stack uses installed system fonts, so typography can vary between
 
 ## Release
 
-Attach `paper-ink.json` to a GitHub Release after running `check`.
+The current release number lives in [VERSION](VERSION); changes are recorded in [CHANGELOG.md](CHANGELOG.md).
+Git tags use the form `v0.1.0`. The JSON's `"version": 1` identifies the T3 Code file format and is independent of the release number.
+
+While the theme is in `0.x`:
+
+- Bump the patch number for visual fixes and compatibility corrections: `0.1.0` → `0.1.1`.
+- Bump the minor number for new styling or substantial design changes: `0.1.1` → `0.2.0`.
+- Record any change to required T3 Code versions in the changelog and release notes.
+
+Update `VERSION` and the changelog, run `build` and `check`, and commit the changes before tagging a release.
+Attach the corresponding `paper-ink.json` to the GitHub Release. Existing releases remain snapshots of their tagged commits.
+For example, after committing and pushing the release changes:
+
+```sh
+release_version="$(cat VERSION)"
+git tag -a "v$release_version" -m "Paper / Ink v$release_version"
+git push origin "v$release_version"
+gh release create "v$release_version" paper-ink.json \
+  --verify-tag --title "Paper / Ink v$release_version" --notes-file /path/to/release-notes.md
+```
+
 Refresh the demo images when the CSS or interface changes, and record the tested T3 Code version in the release notes.
 Users only need the JSON file to install the theme.
 
