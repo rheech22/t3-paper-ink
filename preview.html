@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paper / Ink — design preview</title>
+<style>
+:root { color-scheme:light; --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; --font-mono:ui-monospace,SFMono-Regular,monospace; }
+:root {
+--background: #f3f1e9;
+--foreground: #292a26;
+--muted: #e9e7de;
+--muted-foreground: #30382c;
+--border: #c6c5ba;
+--input: #f8f6ef;
+--primary: #505b4a;
+--primary-foreground: #fffaf3;
+--accent: #e1e1d5;
+--accent-foreground: #292a26;
+--secondary: #e6e4db;
+--secondary-foreground: #33352e;
+--code-background: #eae8df;
+--sidebar: #eae8df;
+--sidebar-foreground: #30322b;
+--message-surface: #f8f2e5;
+--message-foreground: #292a26;
+--popover: #f8f6ef;
+--error: #914636;
+--error-foreground: #914636;
+--error-surface: #f2e2da;
+--warning: #775b20;
+--warning-foreground: #775b20;
+--warning-surface: #f1e9ce;
+--update-foreground: #3f6656;
+}
+* {box-sizing:border-box;}
+body {margin:0;color:var(--foreground);background:var(--background);font:14px/1.5 var(--font-sans);}
+button,input,select,textarea {font:inherit;}
+button {cursor:pointer;}
+button,a,textarea,select {outline-offset:3px;}
+[hidden] {display:none!important;}
+.demo-banner {min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;border-bottom:1px solid var(--border);background:#f8f6ef;}
+.demo-banner strong {font-weight:600;}
+.demo-banner small {margin-left:12px;color:#626959;}
+.demo-tabs {display:flex;gap:6px;}
+.demo-tabs button {border:1px solid #85877b;padding:5px 14px;background:transparent;border-radius:2px;color:#30322b;}
+.demo-tabs button[aria-selected=true] {background:#d4dfd2;border-color:#657b68;}
+.demo-app {display:grid;grid-template-columns:232px minmax(0,1fr);min-height:680px;}
+.demo-sidebar {border-right:1px solid var(--border);padding:0 12px 18px;display:flex;flex-direction:column;}
+.demo-sidebar-top {height:60px;display:flex;align-items:center;position:relative;--workspace-controls-left:0px;--workspace-titlebar-control-size:28px;}
+.demo-sidebar-toggle {width:28px;height:28px;display:grid;place-items:center;color:#5b6254;position:absolute;left:0;}
+.demo-home {height:28px;display:flex;align-items:center;text-decoration:none;}
+.demo-back {color:#5b6254;margin-left:14px;}
+.demo-search {display:flex;align-items:center;gap:9px;padding:8px;color:#48523f;margin-bottom:22px;}
+.demo-search input {width:100%;border:0;background:transparent;color:#30322b;outline:none;}
+.demo-search:focus-within {box-shadow:inset 0 -2px 0 #50534a;}
+.demo-group {font-size:12px;color:#48523f;margin:0 8px 8px;font-weight:500;}
+.demo-sidebar ul {list-style:none;padding:0;margin:0;}
+.demo-thread {display:flex;flex-direction:column;width:100%;padding:10px 12px;border:0;text-align:left;background:transparent;gap:3px;color:#30322b;}
+.demo-thread span:last-child {font-size:12px;color:#626959;}
+.demo-bottom {margin-top:auto;padding:28px 8px 0;font-size:12px;color:#48523f;}
+.demo-content {min-width:0;}
+.demo-header {height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px;color:#30322b;}
+.demo-header .path {font-size:13px;color:#585e51;}
+.demo-pane {padding:30px 34px 24px;max-width:900px;margin:auto;}
+.demo-messages {display:flex;flex-direction:column;gap:22px;}
+.demo-user {display:flex;justify-content:flex-end;}
+.demo-user [data-user-message-bubble] {max-width:90%;}
+.demo-user p {margin:0;}
+.demo-reply {padding:0 4px;}
+.demo-reply h2 {font-size:20px;}
+.demo-reply p {margin:0 0 12px;}
+.demo-reply a {color:var(--info-foreground);}
+.demo-status {font:12px/1.5 var(--font-sans);color:#48523f;display:flex;align-items:center;gap:8px;}
+.demo-dot {width:6px;height:6px;background:#3f6656;display:inline-block;}
+.demo-composer-wrap {margin-top:32px;}
+.demo-composer {padding:18px 16px 12px;}
+.demo-composer textarea {display:block;width:100%;min-height:62px;padding:0 0 14px;border:0;resize:vertical;outline:none;background:transparent;color:#30322b;}
+.demo-composer textarea::placeholder {color:#626959;opacity:1;}
+.demo-composer-footer {display:flex;align-items:center;gap:12px;}
+.demo-composer-footer .demo-model {margin-left:auto;color:#48523f;font-size:13px;}
+.demo-icon {font:20px/1 var(--font-sans);color:#5b6254;}
+.demo-send {width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:50%;background:var(--primary);color:var(--primary-foreground);font-size:20px;}
+.demo-send:disabled {background:#e0e0d8;color:#626959;cursor:default;}
+.demo-composer-hint {font-size:11px;color:#626959;text-align:right;margin:8px 2px 0;}
+.demo-settings {padding-top:25px;}
+.demo-settings h2 {font:600 17px/1.5 var(--font-sans);margin:0 0 16px;}
+.demo-settings h2:not(:first-child) {margin-top:28px;}
+.demo-setting {padding:16px 18px;display:flex;gap:24px;justify-content:space-between;align-items:center;}
+.demo-setting + .demo-setting {border-top:1px solid var(--border);}
+.demo-setting p {font-size:12px;line-height:1.6;color:var(--muted-foreground);margin:4px 0 0;}
+.demo-switch {position:relative;display:flex;align-items:center;flex:0 0 auto;width:30px;height:18px;padding:2px;border:0;}
+.demo-switch [data-slot=switch-thumb] {display:block;width:14px;height:14px;pointer-events:none;}
+.demo-switch[aria-checked=true] [data-slot=switch-thumb] {transform:translateX(12px);}
+.demo-select {padding:4px 8px;min-width:110px;}
+.demo-alert {font-size:12px;color:var(--warning-foreground);background:var(--warning-surface);border-left:2px solid var(--warning);padding:12px 14px;margin-top:24px;}
+.demo-footer {padding:12px 24px;border-top:1px solid var(--border);font-size:11px;color:#626959;display:flex;justify-content:space-between;gap:12px;}
+@media(max-width:680px) {
+ .demo-app {grid-template-columns:160px minmax(0,1fr);}
+ .demo-pane {padding:22px 16px;}
+ .demo-header {padding:0 16px;}
+ .demo-banner {padding:12px 16px;flex-wrap:wrap;}
+ .demo-banner small {display:block;margin:3px 0 0;}
+ .demo-model {display:none;}
+ .demo-setting {gap:12px;padding:14px 12px;}
+}
+@media(max-width:460px) {
+ .demo-app {grid-template-columns:minmax(0,1fr);}
+ .demo-sidebar {display:none;}
+ .demo-footer {flex-wrap:wrap;}
+}
+</style>
+<style id="paper-ink-theme">
+
+:root { --radius: 2px; }
+[data-slot="button"],
+[data-slot="input"],
+[data-slot="select-trigger"],
+[data-thread-item],
+[data-user-message-bubble],
+[data-thread-details-card],
+[data-slot="composer-host"],
+.chat-markdown-codeblock {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+[data-slot="dialog-popup"],
+[data-slot="popover-popup"],
+[data-slot="menu-popup"],
+[data-slot="tooltip-popup"] {
+  border-radius: 2px !important;
+  box-shadow: 2px 2px 0 rgba(41,42,38,.12) !important;
+}
+[data-chat-header] {
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+[data-slot="sidebar-inner"] { box-shadow: none !important; }
+[data-thread-item] { border-radius: 0 !important; }
+[data-slot="composer-host"] {
+  border: 1px solid var(--border) !important;
+  background: var(--input) !important;
+}
+[data-user-message-bubble] {
+  border: 1px solid var(--border) !important;
+}
+.chat-markdown {
+  font-family: Charter, "Iowan Old Style", "Palatino Linotype", "Noto Serif KR", "AppleMyungjo", "Batang", Georgia, serif !important;
+  font-size: 16px;
+  line-height: 1.85 !important;
+  letter-spacing: .005em;
+}
+.chat-markdown :is(h1,h2,h3,h4) {
+  font-family: inherit !important;
+  letter-spacing: -.02em;
+  line-height: 1.4 !important;
+}
+.chat-markdown :is(pre,code,kbd) {
+  font-family: var(--font-mono), monospace !important;
+  letter-spacing: normal;
+}
+.chat-markdown blockquote {
+  border-left-width: 1px !important;
+}
+.chat-markdown a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.chat-markdown-codeblock {
+  border: 1px solid var(--border) !important;
+  line-height: 1.6 !important;
+}
+svg.lucide { stroke-width: 1.5; }
+[data-slot="scroll-area-thumb"] { border-radius: 0 !important; }
+
+/* Typesetting and restrained structural details. */
+.chat-markdown :is(h1,h2) {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .45em;
+  margin-top: 1.65em;
+  margin-bottom: .85em;
+}
+.chat-markdown h3 { margin-top: 1.5em; margin-bottom: .65em; }
+.chat-markdown p { text-wrap: pretty; }
+.chat-markdown :is(ul,ol) { padding-inline-start: 1.5em; }
+.chat-markdown li::marker { color: var(--muted-foreground); }
+.chat-markdown blockquote {
+  background: transparent !important;
+  border-color: var(--border) !important;
+  border-radius: 0 !important;
+  color: var(--muted-foreground);
+  padding-inline-start: 1.2em;
+  font-style: normal;
+}
+.chat-markdown hr {
+  height: 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin-block: 2em;
+}
+.chat-markdown table { font-variant-numeric: tabular-nums; }
+.chat-markdown :is(th,td) {
+  border-color: var(--border) !important;
+  padding: .65em .85em;
+}
+.chat-markdown th {
+  background: var(--muted) !important;
+  font-weight: 600;
+}
+.chat-markdown :is(img,video) { border-radius: 2px !important; }
+.chat-markdown ::selection,
+.composer-tiptap ::selection {
+  background: #d8dacb;
+  color: #20221b;
+}
+[data-user-message-bubble] {
+  border-inline-start-color: #85877b !important;
+}
+[data-slot="composer-host"]:focus-within {
+  border-color: #777b6b !important;
+}
+[data-slot="input"]:focus-visible,
+[data-slot="select-trigger"]:focus-visible,
+[data-slot="button"]:focus-visible {
+  outline: 2px solid #50534a !important;
+  outline-offset: 2px;
+}
+[data-thread-details-card] {
+  border: 1px solid var(--border) !important;
+}
+[data-slot="project-monogram"] { border-radius: 2px !important; }
+[data-slot="tooltip-popup"] {
+  font-size: 12px;
+  letter-spacing: .015em;
+}
+
+/* Paper texture: background layers only; text and controls stay crisp. */
+[data-workspace-area="conversation"],
+[data-settings-page-scroll],
+[data-slot="dialog-popup"],
+[data-slot="popover-popup"],
+[data-slot="menu-popup"] {
+  background-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%20viewBox%3D%220%200%20160%20160%22%3E%3Cfilter%20id%3D%22grain%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.62%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncR%20type%3D%22linear%22%20slope%3D%221.8%22%20intercept%3D%22-.4%22%2F%3E%3CfeFuncG%20type%3D%22linear%22%20slope%3D%221.8%22%20intercept%3D%22-.4%22%2F%3E%3CfeFuncB%20type%3D%22linear%22%20slope%3D%221.8%22%20intercept%3D%22-.4%22%2F%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%22.16%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%23grain)%22%2F%3E%3C%2Fsvg%3E"),
+    radial-gradient(ellipse at 48% 24%,
+      rgba(255,255,250,.55) 0%,
+      rgba(255,255,250,.10) 45%,
+      rgba(76,69,48,.09) 100%) !important;
+  background-size: 160px 160px, 100% 100% !important;
+  background-repeat: repeat, no-repeat !important;
+
+  background-color: #f3f1e9 !important;
+}
+[data-slot="sidebar-inner"],
+nav[data-workspace-area="settings-nav"],
+nav:has([data-settings-section]) {
+  background-color: #eeeee7 !important;
+  background-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22192%22%20height%3D%22192%22%20viewBox%3D%220%200%20192%20192%22%3E%3Cfilter%20id%3D%22grain%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncR%20type%3D%22linear%22%20slope%3D%222.5%22%20intercept%3D%22-.75%22%2F%3E%3CfeFuncG%20type%3D%22linear%22%20slope%3D%222.5%22%20intercept%3D%22-.75%22%2F%3E%3CfeFuncB%20type%3D%22linear%22%20slope%3D%222.5%22%20intercept%3D%22-.75%22%2F%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%22.29%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%23grain)%22%2F%3E%3C%2Fsvg%3E"),
+    radial-gradient(ellipse 130% 32% at 5% 32%, rgba(168,202,190,.55), transparent 85%),
+    radial-gradient(ellipse 140% 38% at 100% 66%, rgba(169,205,193,.65), transparent 85%),
+    radial-gradient(ellipse 150% 30% at 65% 110%, rgba(218,201,136,.65), transparent 85%),
+    linear-gradient(165deg, #efeae9 0%, #eff0e9 48%, #e8eee4 78%, #eae4c9 100%) !important;
+  background-size: 192px 192px, 100% 100%, 100% 100%, 100% 100%, 100% 100% !important;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+
+/* Shared paper controls, selection and semantic colors. */
+:root {
+  --success: #427357;
+  --success-foreground: #365943;
+  --info: #557784;
+  --info-foreground: #365565;
+}
+[data-slot="settings-group"],
+[data-slot="card"] {
+  border-radius: 2px !important;
+  border: 1px solid #c6c5ba !important;
+  background-color: rgba(248,246,239,.78) !important;
+  box-shadow: none !important;
+}
+[data-slot="settings-row"] {
+  border-radius: 0 !important;
+  border-color: #d3d1c6 !important;
+}
+[data-settings-section] { border-radius: 2px !important; }
+[data-settings-section][aria-current="page"],
+[data-sidebar-row][aria-current="page"],
+[data-thread-item] [aria-current="page"] {
+  background-color: rgba(248,246,239,.18) !important;
+  color: #292e28 !important;
+  box-shadow: inset 0 0 0 1px #657b68 !important;
+}
+:is([data-settings-section], [data-sidebar-row])[aria-current="page"] :is(span,svg) {
+  color: #292e28 !important;
+}
+[data-thread-item] button[aria-label="Dismiss Woke notification"] {
+  color: #365943 !important;
+}
+[data-sidebar-row][aria-current="page"] button[aria-label="Dismiss Woke notification"] {
+  color: #365943 !important;
+}
+[data-settings-section]:not([aria-current="page"]):hover {
+  background-color: #bfd0c2 !important;
+}
+[data-slot="input-control"],
+[data-slot="textarea"],
+[data-slot="select-trigger"] {
+  border: 1px solid #85877b !important;
+  border-radius: 2px !important;
+  background-color: #f8f6ef !important;
+  color: #292a26 !important;
+  box-shadow: none !important;
+}
+[data-slot="input"][aria-invalid="true"],
+[data-slot="textarea"][aria-invalid="true"],
+[data-slot="select-trigger"][aria-invalid="true"] {
+  border-color: #914636 !important;
+}
+:is([data-slot="switch"],[role="switch"]) {
+  border: 0 !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+}
+:is([data-slot="switch"],[role="switch"]):is([aria-checked="true"],[data-checked]) {
+  background-color: #505b4a !important;
+}
+:is([data-slot="switch"],[role="switch"]):is([aria-checked="false"],[data-unchecked]) {
+  background-color: #dedfd3 !important;
+}
+[data-slot="switch-thumb"] {
+  border-radius: 2px !important;
+  background-color: #faf8f0 !important;
+  box-shadow: none !important;
+}
+[data-slot="button"][aria-pressed="true"] {
+  box-shadow: inset 0 -2px 0 #505b4a !important;
+}
+[data-slot="input"]:focus-visible,
+[data-slot="textarea"]:focus-visible,
+[data-slot="select-trigger"]:focus-visible,
+[data-slot="button"]:focus-visible,
+:is([data-slot="switch"],[role="switch"]):focus-visible,
+[data-settings-section]:focus-visible {
+  outline: 2px solid #50534a !important;
+  outline-offset: -2px !important;
+}
+[data-workspace-area="settings-nav"] + div > header,
+[data-chat-header] {
+  background-color: rgba(238,236,228,.88) !important;
+  border-bottom: 1px solid #c6c5ba !important;
+  box-shadow: none !important;
+}
+[data-slot="popover-popup"],
+[data-slot="menu-popup"],
+[data-slot="tooltip-popup"],
+[data-slot="select-popup"] {
+  background-color: #f8f6ef !important;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%20viewBox%3D%220%200%20160%20160%22%3E%3Cfilter%20id%3D%22grain%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.62%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncR%20type%3D%22linear%22%20slope%3D%221.8%22%20intercept%3D%22-.4%22%2F%3E%3CfeFuncG%20type%3D%22linear%22%20slope%3D%221.8%22%20intercept%3D%22-.4%22%2F%3E%3CfeFuncB%20type%3D%22linear%22%20slope%3D%221.8%22%20intercept%3D%22-.4%22%2F%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%22.07%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%23grain)%22%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: 160px 160px !important;
+  background-repeat: repeat !important;
+  color: #292a26 !important;
+  border: 1px solid #85877b !important;
+  border-radius: 2px !important;
+  box-shadow: 2px 2px 0 rgba(41,42,38,.12) !important;
+}
+[data-slot="tooltip-popup"] { line-height: 1.5; }
+
+/* Hover stays visible; the selected row keeps its thin frame. */
+@media (hover: hover) {
+  [data-sidebar-row]:hover,
+  [data-thread-item]:hover [data-sidebar-row],
+  [data-settings-section]:hover,
+  [data-slot="sidebar-menu-button"]:hover {
+    background-color: #bfd0c2 !important;
+    color: #292e28 !important;
+  }
+  :is([data-settings-section], [data-sidebar-row])[aria-current="page"]:hover,
+  [data-thread-item]:hover [data-sidebar-row][aria-current="page"] {
+    background-color: #cbd8cb !important;
+    box-shadow: inset 0 0 0 1px #657b68 !important;
+  }
+}
+
+/* Replace only the sidebar home wordmark; retain the existing link. */
+a[aria-label="T3 Code home"] {
+  color: #292e28 !important;
+  border-radius: 2px !important;
+  margin-left: calc(var(--workspace-controls-left) + var(--workspace-titlebar-control-size) + 9px) !important;
+  padding-inline: 0;
+  text-decoration: none !important;
+}
+a[aria-label="T3 Code home"] > span { display: none !important; }
+a[aria-label="T3 Code home"]::before {
+  content: "＋ New";
+  font-family: var(--font-sans), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .015em;
+  white-space: nowrap;
+}
+@media (hover: hover) {
+  a[aria-label="T3 Code home"]:hover {
+    background-color: #bfd0c2 !important;
+  }
+}
+a[aria-label="T3 Code home"]:focus-visible {
+  outline: 2px solid #50534a !important;
+  outline-offset: -2px !important;
+}
+
+/* Input owns the text; its wrapper owns the surface and border. */
+[data-slot="input-control"] > [data-slot="input"] {
+  border: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-slot="input-control"]:has(> [data-slot="input"][aria-invalid="true"]) {
+  border-color: #914636 !important;
+}
+[data-slot="input-control"]:has(> input:is([type="search"],[placeholder^="Search" i],[aria-label^="Search" i])) {
+  border: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 2px !important;
+}
+[data-slot="input-control"]:has(> input:is([type="search"],[placeholder^="Search" i],[aria-label^="Search" i]))::before {
+  box-shadow: none !important;
+}
+[data-slot="input-control"] > input:is([type="search"],[placeholder^="Search" i],[aria-label^="Search" i]):focus-visible {
+  outline: none !important;
+}
+[data-slot="input-control"]:has(> input:is([type="search"],[placeholder^="Search" i],[aria-label^="Search" i]):focus-visible) {
+  box-shadow: inset 0 -2px 0 #50534a !important;
+}
+/* Usage period, metric and breakdown selectors. */
+[data-slot="toggle-group"]:is([aria-label="Usage period"],[aria-label="Usage metric"],[aria-label="Usage breakdown"]) {
+  background-color: rgba(226,228,216,.55) !important;
+  border-radius: 2px !important;
+}
+[data-slot="toggle-group"]:is([aria-label="Usage period"],[aria-label="Usage metric"],[aria-label="Usage breakdown"]) [data-slot="toggle"] {
+  border-radius: 2px !important;
+  color: #5d6358 !important;
+  box-shadow: none !important;
+}
+[data-slot="toggle-group"]:is([aria-label="Usage period"],[aria-label="Usage metric"],[aria-label="Usage breakdown"]) [data-slot="toggle"]:is([data-pressed],[aria-pressed="true"]) {
+  background-color: #c3d4c7 !important;
+  color: #292e28 !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 -2px 0 #526b58 !important;
+}
+@media (hover: hover) {
+  [data-slot="toggle-group"]:is([aria-label="Usage period"],[aria-label="Usage metric"],[aria-label="Usage breakdown"]) [data-slot="toggle"]:not([data-pressed]):not([aria-pressed="true"]):hover {
+    background-color: #d7e1d4 !important;
+    color: #292e28 !important;
+  }
+}
+
+/* Square primary composer action, including its disabled state. */
+[data-chat-composer-form] button[type="submit"],
+[data-chat-composer-form] button[aria-label="Resume thread"],
+[data-slot="composer-host"] button[type="submit"],
+[data-slot="composer-host"] button[aria-label="Resume thread"] {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+/* Keep Stop and Stopping aligned with the square send action. */
+button:is([aria-label="Stop generation"],[aria-label="Stopping"]) {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+/* Warm paper messages without cast shadows. */
+[data-user-message-bubble] {
+  background-color: #f8f2e5 !important;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%3E%3Cfilter%20id%3D%22grain%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%22.10%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%23grain)%22%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: 160px 160px !important;
+  background-repeat: repeat !important;
+  border: 1px solid #c5c0ae !important;
+  border-inline-start-color: #c5c0ae !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  color: #30322b !important;
+  padding: 15px 21px !important;
+}
+
+
+/* Cut only the painted surfaces; content and popup overflow remain intact. */
+[data-slot="composer-shell"]::before {
+  content: none !important;
+}
+[data-slot="composer-host"] {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 1px;
+}
+[data-slot="composer-host"]:focus-within {
+  border: 0 !important;
+}
+[data-slot="composer-host"]::before,
+[data-slot="composer-host"]::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  width: auto !important;
+  height: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+[data-slot="composer-host"]::before {
+  content: none !important;
+}
+[data-slot="composer-host"]::after {
+  inset: 0 !important;
+  background-color: #ffffff !important;
+  background-image: linear-gradient(225deg, transparent 49%, #e9e8e0 50%) !important;
+  background-position: right top !important;
+  background-size: 13px 13px !important;
+  background-repeat: no-repeat !important;
+  clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 0 100%);
+  z-index: -1 !important;
+}
+[data-chat-composer-main-surface] {
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+[data-chat-composer-main-surface]::after {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+[data-user-message-bubble],
+[data-user-message-bubble] .chat-markdown {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+}
+[data-user-message-bubble] .chat-markdown p {
+  line-height: inherit !important;
+  margin-block: .2rem !important;
+}
+[data-user-message-bubble] .chat-markdown > :first-child {
+  margin-top: 0 !important;
+}
+[data-user-message-bubble] .chat-markdown > :last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Subtle elevation follows the cut paper silhouette. */
+[data-slot="composer-host"] {
+  filter: drop-shadow(0 1px 1px rgba(48,50,43,.09)) !important;
+}
+
+/* Keep navigation labels legible over grain and translucent hover surfaces. */
+[data-settings-section],
+nav[data-workspace-area="settings-nav"] h3 {
+  color: #48523f !important;
+}
+
+/* Readable explanatory copy even when native-only controls are unavailable. */
+[data-settings-page-scroll] :is(p,h3) {
+  opacity: 1 !important;
+}
+
+/* Define off switches without changing track or thumb dimensions. */
+:is([data-slot="switch"],[role="switch"]):is([aria-checked="false"],[data-unchecked]) {
+  box-shadow: inset 0 0 0 1px #777b6b !important;
+}
+:is([data-slot="switch"],[role="switch"]):is([aria-checked="false"],[data-unchecked]) [data-slot="switch-thumb"] {
+  box-shadow: inset 0 0 0 1px #777b6b !important;
+}
+
+/* Inactive navigation rows remain readable; disabled controls keep their state. */
+[data-sidebar-row]:not([aria-disabled="true"]) {
+  opacity: 1 !important;
+}
+
+</style>
+</head>
+<body>
+<header class="demo-banner">
+ <div><strong>Paper / Ink</strong><small>Design simulation · fictional content</small></div>
+ <div class="demo-tabs" role="tablist" aria-label="Preview screen">
+  <button id="chat-tab" role="tab" aria-selected="true" aria-controls="chat-view" type="button">Chat</button>
+  <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" type="button" tabindex="-1">Settings</button>
+ </div>
+</header>
+<div class="demo-app">
+ <aside class="demo-sidebar" data-slot="sidebar-inner" aria-label="Demo sidebar">
+  <div class="demo-sidebar-top"><span class="demo-sidebar-toggle" aria-hidden="true">◧</span><a class="demo-home" aria-label="T3 Code home" href="#chat"><span>T3 Code</span></a><span class="demo-back" aria-hidden="true">←</span></div>
+  <label class="demo-search"><span aria-hidden="true">⌕</span><input id="demo-search" type="search" placeholder="Search" aria-label="Search demo threads"></label>
+  <p class="demo-group">STUDIO</p>
+  <ul id="demo-threads">
+   <li data-thread-item="field-notes"><button class="demo-thread" data-sidebar-row="field-notes" aria-current="page" type="button"><span>Field notes</span><span>Paper / Ink · now</span></button></li>
+   <li data-thread-item="sketchbook"><button class="demo-thread" data-sidebar-row="sketchbook" type="button"><span>Sketchbook</span><span>Ideas & experiments</span></button></li>
+   <li data-thread-item="reading-room"><button class="demo-thread" data-sidebar-row="reading-room" type="button"><span>Reading room</span><span>Quiet work, clear thoughts</span></button></li>
+  </ul>
+  <div class="demo-bottom">A little less chrome.<br>A little more room to think.</div>
+ </aside>
+ <main class="demo-content" data-workspace-area="conversation">
+  <div class="demo-header" data-chat-header><span id="demo-heading">Field notes</span><span class="path">Studio / Paper / Ink</span></div>
+  <section class="demo-pane" id="chat-view" role="tabpanel" aria-labelledby="chat-tab">
+   <div class="demo-messages" id="demo-messages" aria-live="polite">
+    <div class="demo-user" data-message-role="user"><div data-user-message-bubble><div class="chat-markdown"><p>Keep the grain. Soften the edges.</p></div></div></div>
+    <div class="demo-reply" data-message-role="assistant"><div class="chat-markdown"><h2>A quieter place to think.</h2><p>Warm paper, a trace of mint, and ink that stays clear. The details give your ideas room to breathe.</p><p>Fine borders keep things in order. A folded white composer marks the next blank page.</p><p><a href="#notes">Explore the details</a> · <a href="#notes">A note on paper</a></p></div><div class="demo-status"><span class="demo-dot"></span>Ready when you are.</div></div>
+    <div class="demo-user" data-message-role="user"><div data-user-message-bubble><div class="chat-markdown"><p>That feels right.</p><p>Let’s keep it simple.</p></div></div></div>
+   </div>
+   <div class="demo-composer-wrap" data-slot="composer-shell"><div data-slot="composer-host"><form class="demo-composer" id="demo-form" data-chat-composer-form><label for="demo-prompt" hidden>Demo message</label><textarea id="demo-prompt" class="composer-tiptap" placeholder="A blank page for your next thought…"></textarea><div class="demo-composer-footer"><span class="demo-icon" aria-hidden="true">＋</span><span class="demo-model">Local demo · no API</span><button class="demo-send" type="submit" aria-label="Add demo message" disabled>↑</button></div></form></div><p class="demo-composer-hint">Adds a local preview message only.</p></div>
+  </section>
+  <section class="demo-pane demo-settings" id="settings-view" role="tabpanel" aria-labelledby="settings-tab" data-settings-page-scroll hidden>
+   <h2>Reading & writing</h2>
+   <div data-slot="settings-group">
+    <div class="demo-setting" data-slot="settings-row"><div><span id="grain-label">Paper grain</span><p>Demo preference. The theme keeps a quiet texture.</p></div><button class="demo-switch" data-slot="switch" role="switch" aria-labelledby="grain-label" aria-checked="true" data-checked type="button"><span data-slot="switch-thumb"></span></button></div>
+    <div class="demo-setting" data-slot="settings-row"><div><span id="notifications-label">Notifications</span><p>Square tracks and thumbs keep a consistent shape.</p></div><button class="demo-switch" data-slot="switch" role="switch" aria-labelledby="notifications-label" aria-checked="false" data-unchecked type="button"><span data-slot="switch-thumb"></span></button></div>
+    <div class="demo-setting" data-slot="settings-row"><div><label for="demo-density">Density</label><p>Changes spacing in this preview only.</p></div><select id="demo-density" class="demo-select" data-slot="select-trigger"><option>Comfortable</option><option>Compact</option></select></div>
+   </div>
+   <h2>Focus</h2>
+   <div data-slot="settings-group"><div class="demo-setting" data-slot="settings-row"><div><span id="focus-label">Focus mode</span><p>Legible labels on softly tinted surfaces.</p></div><button class="demo-switch" data-slot="switch" role="switch" aria-labelledby="focus-label" aria-checked="true" data-checked type="button"><span data-slot="switch-thumb"></span></button></div></div>
+   <div class="demo-alert">This is a design simulation. These controls do not change T3 Code settings.</div>
+  </section>
+ </main>
+</div>
+<footer class="demo-footer" id="notes"><span>Paper / Ink · Light appearance</span><span>Same theme CSS · simulated UI · no network calls</span></footer>
+<script>
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+function showScreen(name) {
+  tabs.forEach(tab => {
+    const selected = tab.id === name + '-tab';
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+  });
+  document.getElementById('demo-heading').textContent = name === 'chat' ? 'Field notes' : 'Settings';
+}
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => showScreen(tab.id.split('-')[0]));
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + 1) % tabs.length;
+    tabs[next].click();
+    tabs[next].focus();
+  });
+});
+document.querySelector('.demo-home').addEventListener('click', event => {
+  event.preventDefault();
+  showScreen('chat');
+  document.getElementById('demo-prompt').focus();
+});
+document.querySelectorAll('.demo-switch').forEach(button => {
+  button.addEventListener('click', () => {
+    const checked = button.getAttribute('aria-checked') !== 'true';
+    button.setAttribute('aria-checked', String(checked));
+    button.toggleAttribute('data-checked', checked);
+    button.toggleAttribute('data-unchecked', !checked);
+  });
+});
+document.querySelectorAll('.demo-thread').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.demo-thread').forEach(other => other.removeAttribute('aria-current'));
+    button.setAttribute('aria-current', 'page');
+    showScreen('chat');
+    document.getElementById('demo-heading').textContent = button.firstElementChild.textContent;
+  });
+});
+document.getElementById('demo-search').addEventListener('input', event => {
+  const query = event.currentTarget.value.toLowerCase();
+  document.querySelectorAll('#demo-threads li').forEach(row => {row.hidden = !row.textContent.toLowerCase().includes(query);});
+});
+document.getElementById('demo-density').addEventListener('change', event => {
+  document.querySelectorAll('.demo-setting').forEach(row => {row.style.paddingBlock = event.currentTarget.value === 'Compact' ? '10px' : '16px';});
+});
+const prompt = document.getElementById('demo-prompt');
+const send = document.querySelector('.demo-send');
+prompt.addEventListener('input', () => {send.disabled = !prompt.value.trim();});
+document.getElementById('demo-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const text = prompt.value.trim();
+  if (!text) return;
+  const row = document.createElement('div');
+  row.className = 'demo-user';
+  row.dataset.messageRole = 'user';
+  const bubble = document.createElement('div');
+  bubble.setAttribute('data-user-message-bubble', '');
+  bubble.style.whiteSpace = 'pre-wrap';
+  bubble.textContent = text;
+  row.append(bubble);
+  document.getElementById('demo-messages').append(row);
+  prompt.value = '';
+  send.disabled = true;
+});
+showScreen(location.hash === '#settings' ? 'settings' : 'chat');
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paper / Ink — design preview</title>
+<style>
+:root { color-scheme:light; --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; --font-mono:ui-monospace,SFMono-Regular,monospace; }
+{{PALETTE_CSS}}
+* {box-sizing:border-box;}
+body {margin:0;color:var(--foreground);background:var(--background);font:14px/1.5 var(--font-sans);}
+button,input,select,textarea {font:inherit;}
+button {cursor:pointer;}
+button,a,textarea,select {outline-offset:3px;}
+[hidden] {display:none!important;}
+.demo-banner {min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;border-bottom:1px solid var(--border);background:#f8f6ef;}
+.demo-banner strong {font-weight:600;}
+.demo-banner small {margin-left:12px;color:#626959;}
+.demo-tabs {display:flex;gap:6px;}
+.demo-tabs button {border:1px solid #85877b;padding:5px 14px;background:transparent;border-radius:2px;color:#30322b;}
+.demo-tabs button[aria-selected=true] {background:#d4dfd2;border-color:#657b68;}
+.demo-app {display:grid;grid-template-columns:232px minmax(0,1fr);min-height:680px;}
+.demo-sidebar {border-right:1px solid var(--border);padding:0 12px 18px;display:flex;flex-direction:column;}
+.demo-sidebar-top {height:60px;display:flex;align-items:center;position:relative;--workspace-controls-left:0px;--workspace-titlebar-control-size:28px;}
+.demo-sidebar-toggle {width:28px;height:28px;display:grid;place-items:center;color:#5b6254;position:absolute;left:0;}
+.demo-home {height:28px;display:flex;align-items:center;text-decoration:none;}
+.demo-back {color:#5b6254;margin-left:14px;}
+.demo-search {display:flex;align-items:center;gap:9px;padding:8px;color:#48523f;margin-bottom:22px;}
+.demo-search input {width:100%;border:0;background:transparent;color:#30322b;outline:none;}
+.demo-search:focus-within {box-shadow:inset 0 -2px 0 #50534a;}
+.demo-group {font-size:12px;color:#48523f;margin:0 8px 8px;font-weight:500;}
+.demo-sidebar ul {list-style:none;padding:0;margin:0;}
+.demo-thread {display:flex;flex-direction:column;width:100%;padding:10px 12px;border:0;text-align:left;background:transparent;gap:3px;color:#30322b;}
+.demo-thread span:last-child {font-size:12px;color:#626959;}
+.demo-bottom {margin-top:auto;padding:28px 8px 0;font-size:12px;color:#48523f;}
+.demo-content {min-width:0;}
+.demo-header {height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px;color:#30322b;}
+.demo-header .path {font-size:13px;color:#585e51;}
+.demo-pane {padding:30px 34px 24px;max-width:900px;margin:auto;}
+.demo-messages {display:flex;flex-direction:column;gap:22px;}
+.demo-user {display:flex;justify-content:flex-end;}
+.demo-user [data-user-message-bubble] {max-width:90%;}
+.demo-user p {margin:0;}
+.demo-reply {padding:0 4px;}
+.demo-reply h2 {font-size:20px;}
+.demo-reply p {margin:0 0 12px;}
+.demo-reply a {color:var(--info-foreground);}
+.demo-status {font:12px/1.5 var(--font-sans);color:#48523f;display:flex;align-items:center;gap:8px;}
+.demo-dot {width:6px;height:6px;background:#3f6656;display:inline-block;}
+.demo-composer-wrap {margin-top:32px;}
+.demo-composer {padding:18px 16px 12px;}
+.demo-composer textarea {display:block;width:100%;min-height:62px;padding:0 0 14px;border:0;resize:vertical;outline:none;background:transparent;color:#30322b;}
+.demo-composer textarea::placeholder {color:#626959;opacity:1;}
+.demo-composer-footer {display:flex;align-items:center;gap:12px;}
+.demo-composer-footer .demo-model {margin-left:auto;color:#48523f;font-size:13px;}
+.demo-icon {font:20px/1 var(--font-sans);color:#5b6254;}
+.demo-send {width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:50%;background:var(--primary);color:var(--primary-foreground);font-size:20px;}
+.demo-send:disabled {background:#e0e0d8;color:#626959;cursor:default;}
+.demo-composer-hint {font-size:11px;color:#626959;text-align:right;margin:8px 2px 0;}
+.demo-settings {padding-top:25px;}
+.demo-settings h2 {font:600 17px/1.5 var(--font-sans);margin:0 0 16px;}
+.demo-settings h2:not(:first-child) {margin-top:28px;}
+.demo-setting {padding:16px 18px;display:flex;gap:24px;justify-content:space-between;align-items:center;}
+.demo-setting + .demo-setting {border-top:1px solid var(--border);}
+.demo-setting p {font-size:12px;line-height:1.6;color:var(--muted-foreground);margin:4px 0 0;}
+.demo-switch {position:relative;display:flex;align-items:center;flex:0 0 auto;width:30px;height:18px;padding:2px;border:0;}
+.demo-switch [data-slot=switch-thumb] {display:block;width:14px;height:14px;pointer-events:none;}
+.demo-switch[aria-checked=true] [data-slot=switch-thumb] {transform:translateX(12px);}
+.demo-select {padding:4px 8px;min-width:110px;}
+.demo-alert {font-size:12px;color:var(--warning-foreground);background:var(--warning-surface);border-left:2px solid var(--warning);padding:12px 14px;margin-top:24px;}
+.demo-footer {padding:12px 24px;border-top:1px solid var(--border);font-size:11px;color:#626959;display:flex;justify-content:space-between;gap:12px;}
+@media(max-width:680px) {
+ .demo-app {grid-template-columns:160px minmax(0,1fr);}
+ .demo-pane {padding:22px 16px;}
+ .demo-header {padding:0 16px;}
+ .demo-banner {padding:12px 16px;flex-wrap:wrap;}
+ .demo-banner small {display:block;margin:3px 0 0;}
+ .demo-model {display:none;}
+ .demo-setting {gap:12px;padding:14px 12px;}
+}
+@media(max-width:460px) {
+ .demo-app {grid-template-columns:minmax(0,1fr);}
+ .demo-sidebar {display:none;}
+ .demo-footer {flex-wrap:wrap;}
+}
+</style>
+<style id="paper-ink-theme">
+{{THEME_CSS}}
+</style>
+</head>
+<body>
+<header class="demo-banner">
+ <div><strong>Paper / Ink</strong><small>Design simulation · fictional content</small></div>
+ <div class="demo-tabs" role="tablist" aria-label="Preview screen">
+  <button id="chat-tab" role="tab" aria-selected="true" aria-controls="chat-view" type="button">Chat</button>
+  <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" type="button" tabindex="-1">Settings</button>
+ </div>
+</header>
+<div class="demo-app">
+ <aside class="demo-sidebar" data-slot="sidebar-inner" aria-label="Demo sidebar">
+  <div class="demo-sidebar-top"><span class="demo-sidebar-toggle" aria-hidden="true">◧</span><a class="demo-home" aria-label="T3 Code home" href="#chat"><span>T3 Code</span></a><span class="demo-back" aria-hidden="true">←</span></div>
+  <label class="demo-search"><span aria-hidden="true">⌕</span><input id="demo-search" type="search" placeholder="Search" aria-label="Search demo threads"></label>
+  <p class="demo-group">STUDIO</p>
+  <ul id="demo-threads">
+   <li data-thread-item="field-notes"><button class="demo-thread" data-sidebar-row="field-notes" aria-current="page" type="button"><span>Field notes</span><span>Paper / Ink · now</span></button></li>
+   <li data-thread-item="sketchbook"><button class="demo-thread" data-sidebar-row="sketchbook" type="button"><span>Sketchbook</span><span>Ideas & experiments</span></button></li>
+   <li data-thread-item="reading-room"><button class="demo-thread" data-sidebar-row="reading-room" type="button"><span>Reading room</span><span>Quiet work, clear thoughts</span></button></li>
+  </ul>
+  <div class="demo-bottom">A little less chrome.<br>A little more room to think.</div>
+ </aside>
+ <main class="demo-content" data-workspace-area="conversation">
+  <div class="demo-header" data-chat-header><span id="demo-heading">Field notes</span><span class="path">Studio / Paper / Ink</span></div>
+  <section class="demo-pane" id="chat-view" role="tabpanel" aria-labelledby="chat-tab">
+   <div class="demo-messages" id="demo-messages" aria-live="polite">
+    <div class="demo-user" data-message-role="user"><div data-user-message-bubble><div class="chat-markdown"><p>Keep the grain. Soften the edges.</p></div></div></div>
+    <div class="demo-reply" data-message-role="assistant"><div class="chat-markdown"><h2>A quieter place to think.</h2><p>Warm paper, a trace of mint, and ink that stays clear. The details give your ideas room to breathe.</p><p>Fine borders keep things in order. A folded white composer marks the next blank page.</p><p><a href="#notes">Explore the details</a> · <a href="#notes">A note on paper</a></p></div><div class="demo-status"><span class="demo-dot"></span>Ready when you are.</div></div>
+    <div class="demo-user" data-message-role="user"><div data-user-message-bubble><div class="chat-markdown"><p>That feels right.</p><p>Let’s keep it simple.</p></div></div></div>
+   </div>
+   <div class="demo-composer-wrap" data-slot="composer-shell"><div data-slot="composer-host"><form class="demo-composer" id="demo-form" data-chat-composer-form><label for="demo-prompt" hidden>Demo message</label><textarea id="demo-prompt" class="composer-tiptap" placeholder="A blank page for your next thought…"></textarea><div class="demo-composer-footer"><span class="demo-icon" aria-hidden="true">＋</span><span class="demo-model">Local demo · no API</span><button class="demo-send" type="submit" aria-label="Add demo message" disabled>↑</button></div></form></div><p class="demo-composer-hint">Adds a local preview message only.</p></div>
+  </section>
+  <section class="demo-pane demo-settings" id="settings-view" role="tabpanel" aria-labelledby="settings-tab" data-settings-page-scroll hidden>
+   <h2>Reading & writing</h2>
+   <div data-slot="settings-group">
+    <div class="demo-setting" data-slot="settings-row"><div><span id="grain-label">Paper grain</span><p>Demo preference. The theme keeps a quiet texture.</p></div><button class="demo-switch" data-slot="switch" role="switch" aria-labelledby="grain-label" aria-checked="true" data-checked type="button"><span data-slot="switch-thumb"></span></button></div>
+    <div class="demo-setting" data-slot="settings-row"><div><span id="notifications-label">Notifications</span><p>Square tracks and thumbs keep a consistent shape.</p></div><button class="demo-switch" data-slot="switch" role="switch" aria-labelledby="notifications-label" aria-checked="false" data-unchecked type="button"><span data-slot="switch-thumb"></span></button></div>
+    <div class="demo-setting" data-slot="settings-row"><div><label for="demo-density">Density</label><p>Changes spacing in this preview only.</p></div><select id="demo-density" class="demo-select" data-slot="select-trigger"><option>Comfortable</option><option>Compact</option></select></div>
+   </div>
+   <h2>Focus</h2>
+   <div data-slot="settings-group"><div class="demo-setting" data-slot="settings-row"><div><span id="focus-label">Focus mode</span><p>Legible labels on softly tinted surfaces.</p></div><button class="demo-switch" data-slot="switch" role="switch" aria-labelledby="focus-label" aria-checked="true" data-checked type="button"><span data-slot="switch-thumb"></span></button></div></div>
+   <div class="demo-alert">This is a design simulation. These controls do not change T3 Code settings.</div>
+  </section>
+ </main>
+</div>
+<footer class="demo-footer" id="notes"><span>Paper / Ink · Light appearance</span><span>Same theme CSS · simulated UI · no network calls</span></footer>
+<script>
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+function showScreen(name) {
+  tabs.forEach(tab => {
+    const selected = tab.id === name + '-tab';
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+  });
+  document.getElementById('demo-heading').textContent = name === 'chat' ? 'Field notes' : 'Settings';
+}
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => showScreen(tab.id.split('-')[0]));
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + 1) % tabs.length;
+    tabs[next].click();
+    tabs[next].focus();
+  });
+});
+document.querySelector('.demo-home').addEventListener('click', event => {
+  event.preventDefault();
+  showScreen('chat');
+  document.getElementById('demo-prompt').focus();
+});
+document.querySelectorAll('.demo-switch').forEach(button => {
+  button.addEventListener('click', () => {
+    const checked = button.getAttribute('aria-checked') !== 'true';
+    button.setAttribute('aria-checked', String(checked));
+    button.toggleAttribute('data-checked', checked);
+    button.toggleAttribute('data-unchecked', !checked);
+  });
+});
+document.querySelectorAll('.demo-thread').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.demo-thread').forEach(other => other.removeAttribute('aria-current'));
+    button.setAttribute('aria-current', 'page');
+    showScreen('chat');
+    document.getElementById('demo-heading').textContent = button.firstElementChild.textContent;
+  });
+});
+document.getElementById('demo-search').addEventListener('input', event => {
+  const query = event.currentTarget.value.toLowerCase();
+  document.querySelectorAll('#demo-threads li').forEach(row => {row.hidden = !row.textContent.toLowerCase().includes(query);});
+});
+document.getElementById('demo-density').addEventListener('change', event => {
+  document.querySelectorAll('.demo-setting').forEach(row => {row.style.paddingBlock = event.currentTarget.value === 'Compact' ? '10px' : '16px';});
+});
+const prompt = document.getElementById('demo-prompt');
+const send = document.querySelector('.demo-send');
+prompt.addEventListener('input', () => {send.disabled = !prompt.value.trim();});
+document.getElementById('demo-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const text = prompt.value.trim();
+  if (!text) return;
+  const row = document.createElement('div');
+  row.className = 'demo-user';
+  row.dataset.messageRole = 'user';
+  const bubble = document.createElement('div');
+  bubble.setAttribute('data-user-message-bubble', '');
+  bubble.style.whiteSpace = 'pre-wrap';
+  bubble.textContent = text;
+  row.append(bubble);
+  document.getElementById('demo-messages').append(row);
+  prompt.value = '';
+  send.disabled = true;
+});
+showScreen(location.hash === '#settings' ? 'settings' : 'chat');
+</script>
+</body>
+</html>
