@@ -21,12 +21,16 @@ Palette-only VS Code theme converters and some external galleries cannot reprodu
 
 ## Preview
 
-Download [preview.html](preview.html) and open it in a browser to explore the Chat and Settings screens.
+Download [preview.html](preview.html) and open it in a browser to explore the Chat, Question, and Settings screens.
 Typing, adding demo messages, and toggling controls happen locally. No account or API connection is involved.
 
 The interactive preview and images are **design simulations** with fictional conversations and projects.
 They use the same CSS as the distributed theme, but do not reproduce the full T3 Code application.
 Check compatibility in the actual app after T3 Code updates.
+
+A pending question appears as an ink-framed sticky note attached to the composer.
+
+![Paper / Ink question card preview](media/question.png)
 
 ![Paper / Ink settings preview](media/settings.png)
 

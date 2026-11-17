@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No changes yet.
+- The design preview gains a Question screen with an interactive sticky-note question card, and the README shows it.
 
 ## 0.1.2 — 2026-11-18
 

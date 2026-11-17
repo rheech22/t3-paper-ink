@@ -83,6 +83,17 @@ button,a,textarea,select {outline-offset:3px;}
 .demo-send {width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:50%;background:var(--primary);color:var(--primary-foreground);font-size:20px;}
 .demo-send:disabled {background:#e0e0d8;color:#626959;cursor:default;}
 .demo-composer-hint {font-size:11px;color:#626959;text-align:right;margin:8px 2px 0;}
+.demo-drawer {position:relative;width:calc(100% - 44px);margin:0 auto calc(-1rem - 1px);}
+.demo-drawer [data-composer-banner-surface] {position:relative;isolation:isolate;padding:14px 20px calc(1rem + 14px);color:#292a26;}
+.demo-drawer [data-composer-banner-surface]::before {content:"";position:absolute;inset:0;z-index:-1;border:1px solid var(--border);border-bottom:0;background:var(--card);border-radius:16px 16px 0 0;}
+.demo-question-head {display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.demo-question-head span {margin-right:auto;}
+.demo-question-head button {width:28px;height:28px;border:0;background:transparent;color:#48523f;border-radius:2px;}
+.demo-question-text p {font-size:15px;margin:0 0 6px;}
+.demo-option {display:flex;align-items:center;gap:10px;padding:6px 2px;cursor:pointer;}
+.demo-option input {width:16px;height:16px;margin:0;accent-color:#30312d;}
+.demo-option kbd {margin-left:auto;min-width:24px;padding:1px 6px;text-align:center;font:12px/20px var(--font-sans);background:rgba(41,42,38,.08);border-radius:2px;}
+[data-chat-composer-main-surface] {position:relative;z-index:10;}
 .demo-settings {padding-top:25px;}
 .demo-settings h2 {font:600 17px/1.5 var(--font-sans);margin:0 0 16px;}
 .demo-settings h2:not(:first-child) {margin-top:28px;}
@@ -608,6 +619,7 @@ nav[data-workspace-area="settings-nav"] h3 {
  <div><strong>Paper / Ink</strong><small>Design simulation · fictional content</small></div>
  <div class="demo-tabs" role="tablist" aria-label="Preview screen">
   <button id="chat-tab" role="tab" aria-selected="true" aria-controls="chat-view" type="button">Chat</button>
+  <button id="question-tab" role="tab" aria-selected="false" aria-controls="question-view" type="button" tabindex="-1">Question</button>
   <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" type="button" tabindex="-1">Settings</button>
  </div>
 </header>
@@ -633,6 +645,23 @@ nav[data-workspace-area="settings-nav"] h3 {
    </div>
    <div class="demo-composer-wrap" data-slot="composer-shell"><div data-slot="composer-host"><form class="demo-composer" id="demo-form" data-chat-composer-form><label for="demo-prompt" hidden>Demo message</label><textarea id="demo-prompt" class="composer-tiptap" placeholder="A blank page for your next thought…"></textarea><div class="demo-composer-footer"><span class="demo-icon" aria-hidden="true">＋</span><span class="demo-model">Local demo · no API</span><button class="demo-send" type="submit" aria-label="Add demo message" disabled>↑</button></div></form></div><p class="demo-composer-hint">Adds a local preview message only.</p></div>
   </section>
+  <section class="demo-pane" id="question-view" role="tabpanel" aria-labelledby="question-tab" hidden>
+   <div class="demo-messages" id="question-messages" aria-live="polite">
+    <div class="demo-user" data-message-role="user"><div data-user-message-bubble><div class="chat-markdown"><p>Tidy up the composer before we share it.</p></div></div></div>
+    <div class="demo-reply" data-message-role="assistant"><div class="chat-markdown"><p>The layout is in place. One choice is yours before I finish: the folded corner on the composer.</p></div><div class="demo-status"><span class="demo-dot"></span>Waiting for your answer.</div></div>
+   </div>
+   <div class="demo-composer-wrap" data-slot="composer-shell"><div data-slot="composer-host">
+    <div class="demo-drawer" id="question-drawer" data-slot="composer-banner-attachment"><div data-composer-banner-surface="attached" data-variant="default">
+     <div class="demo-question-head"><span>Question</span><button type="button" id="question-collapse" aria-label="Collapse question" aria-expanded="true">⌄</button><button type="button" id="question-dismiss" aria-label="Dismiss question without answering" data-pending-user-input-dismiss>✕</button></div>
+     <div id="question-body"><div class="demo-question-text chat-markdown"><p>Should the composer keep its folded corner?</p></div>
+     <fieldset style="border:0;margin:0;padding:0"><legend hidden>Folded corner</legend>
+      <label class="demo-option"><input type="radio" name="demo-answer" value="Keep the fold" checked><span>Keep the fold (Recommended)</span><kbd>1</kbd></label>
+      <label class="demo-option"><input type="radio" name="demo-answer" value="Square it off"><span>Square it off</span><kbd>2</kbd></label>
+     </fieldset></div>
+    </div></div>
+    <div data-chat-composer-main-surface="true"><form class="demo-composer" id="question-form" data-chat-composer-form><label for="question-prompt" hidden>Your own answer</label><textarea id="question-prompt" class="composer-tiptap" placeholder="Type your own answer, or leave this blank to use the selected option"></textarea><div class="demo-composer-footer"><span class="demo-icon" aria-hidden="true">＋</span><span class="demo-model">Local demo · no API</span><button class="demo-send" type="submit" aria-label="Answer the demo question">↑</button></div></form></div>
+   </div><p class="demo-composer-hint">Answers stay in this preview.</p></div>
+  </section>
   <section class="demo-pane demo-settings" id="settings-view" role="tabpanel" aria-labelledby="settings-tab" data-settings-page-scroll hidden>
    <h2>Reading & writing</h2>
    <div data-slot="settings-group">
@@ -656,7 +685,7 @@ function showScreen(name) {
     tab.tabIndex = selected ? 0 : -1;
     document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
   });
-  document.getElementById('demo-heading').textContent = name === 'chat' ? 'Field notes' : 'Settings';
+  document.getElementById('demo-heading').textContent = name === 'settings' ? 'Settings' : 'Field notes';
 }
 tabs.forEach((tab, index) => {
   tab.addEventListener('click', () => showScreen(tab.id.split('-')[0]));
@@ -715,7 +744,37 @@ document.getElementById('demo-form').addEventListener('submit', event => {
   prompt.value = '';
   send.disabled = true;
 });
-showScreen(location.hash === '#settings' ? 'settings' : 'chat');
+const drawer = document.getElementById('question-drawer');
+const questionPrompt = document.getElementById('question-prompt');
+function closeQuestion(answer) {
+  drawer.remove();
+  questionPrompt.placeholder = 'A blank page for your next thought…';
+  const status = document.querySelector('#question-view .demo-status');
+  status.lastChild.textContent = answer ? 'Answered.' : 'Question dismissed.';
+  if (!answer) return;
+  const row = document.createElement('div');
+  row.className = 'demo-user';
+  row.dataset.messageRole = 'user';
+  const bubble = document.createElement('div');
+  bubble.setAttribute('data-user-message-bubble', '');
+  bubble.textContent = answer;
+  row.append(bubble);
+  document.getElementById('question-messages').append(row);
+}
+document.getElementById('question-collapse').addEventListener('click', event => {
+  const expanded = event.currentTarget.getAttribute('aria-expanded') !== 'true';
+  event.currentTarget.setAttribute('aria-expanded', String(expanded));
+  event.currentTarget.textContent = expanded ? '⌄' : '⌃';
+  document.getElementById('question-body').hidden = !expanded;
+});
+document.getElementById('question-dismiss').addEventListener('click', () => closeQuestion(''));
+document.getElementById('question-form').addEventListener('submit', event => {
+  event.preventDefault();
+  if (!drawer.isConnected) return;
+  closeQuestion(questionPrompt.value.trim() || document.querySelector('input[name="demo-answer"]:checked').value);
+  questionPrompt.value = '';
+});
+showScreen(['settings', 'question'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'chat');
 </script>
 </body>
 </html>
