@@ -519,7 +519,10 @@ button:is([aria-label="Stop generation"],[aria-label="Stopping"]) {
 [data-slot="composer-host"]::before {
   content: none !important;
 }
-[data-slot="composer-host"]::after {
+[data-slot="composer-host"]::after,
+[data-slot="composer-host"]:has([data-composer-banner-surface=attached]) [data-chat-composer-main-surface]::before {
+  content: "" !important;
+  position: absolute !important;
   inset: 0 !important;
   background-color: #ffffff !important;
   background-image: linear-gradient(225deg, transparent 49%, #e9e8e0 50%) !important;
@@ -529,7 +532,15 @@ button:is([aria-label="Stop generation"],[aria-label="Stopping"]) {
   clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 0 100%);
   z-index: -1 !important;
 }
+/* An attached question drawer tucks under the input, so the paper moves there. */
+[data-slot="composer-host"]:has([data-composer-banner-surface=attached])::after {
+  content: none !important;
+}
+[data-composer-banner-surface]::before {
+  border-radius: 2px !important;
+}
 [data-chat-composer-main-surface] {
+  isolation: isolate;
   background-color: transparent !important;
   border-radius: 0 !important;
   box-shadow: none !important;
