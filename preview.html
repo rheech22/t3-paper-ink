@@ -539,6 +539,12 @@ button:is([aria-label="Stop generation"],[aria-label="Stopping"]) {
 [data-composer-banner-surface]::before {
   border-radius: 2px !important;
 }
+/* Pending questions read as a sticky note on an e-ink page. */
+[data-composer-banner-surface]:has([data-pending-user-input-dismiss])::before {
+  background: #f3ecc4 !important;
+  border: 1px solid #2a2a28 !important;
+  mask: none !important;
+}
 [data-chat-composer-main-surface] {
   isolation: isolate;
   background-color: transparent !important;
@@ -566,9 +572,9 @@ button:is([aria-label="Stop generation"],[aria-label="Stopping"]) {
   margin-bottom: 0 !important;
 }
 
-/* Subtle elevation follows the cut paper silhouette. */
+/* One square ink shadow follows the composer and any attached card. */
 [data-slot="composer-host"] {
-  filter: drop-shadow(0 1px 1px rgba(48,50,43,.09)) !important;
+  filter: drop-shadow(3px 3px 0 #2a2a28) !important;
 }
 
 /* Keep navigation labels legible over grain and translucent hover surfaces. */
